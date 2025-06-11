@@ -25,7 +25,7 @@ protocol MapVMProtocol: AnyObject {
 enum MapVMOutput{
     case trackingStarted(_ location: CLLocationCoordinate2D)
     case anyError(String)
-    case selectedAddress(_ address: String)
+    case selectedAddress(String, CLLocationCoordinate2D)
     case locationServicesDisabled
     case trackingStopped
     case routeReset

@@ -36,6 +36,7 @@ final class MapViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        // TODO: Use this information from scene delegate
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(appWillEnterForeground),
                                                name: UIApplication.willEnterForegroundNotification,
@@ -44,6 +45,7 @@ final class MapViewController: UIViewController {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        // TODO: Use this information from scene delegate
         NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification,
                                                   object: nil)
     }
@@ -161,9 +163,8 @@ extension MapViewController: MapViewDelegate {
         case .trackingStarted(let location):
             currentLocation = location
             
-            let annotation = MKPointAnnotation()
-            annotation.coordinate = location
-            annotation.title = "Ziyaret Noktası"
+            let annotation = CustomAnnotation(coordinate: location,
+                                              title: "Ziyaret Noktası")
             mapView.addAnnotation(annotation)
             
             if shouldFollowUser {
@@ -172,8 +173,16 @@ extension MapViewController: MapViewDelegate {
             
         case .anyError(let message):
             print("Error: \(message)")
-        case .selectedAddress:
-            print("selectedAddress")
+        case .selectedAddress(let address, let coordinate):
+            if let annotation = mapView.annotations
+                .compactMap({ $0 as? CustomAnnotation })
+                .first(where: { $0.coordinate.latitude == coordinate.latitude && $0.coordinate.longitude == coordinate.longitude }) {
+                
+                annotation.title = address
+                mapView.removeAnnotation(annotation)
+                mapView.addAnnotation(annotation)
+                mapView.selectAnnotation(annotation, animated: true)
+            }
         case .locationServicesDisabled:
             print("locationServicesDisabled")
         case .trackingStopped:
@@ -192,5 +201,22 @@ extension MapViewController: MKMapViewDelegate {
         if !isProgrammaticRegionChange {
             shouldFollowUser = false
         }
+    }
+    
+    func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
+        guard let coordinate = view.annotation?.coordinate else { return }
+        viewModel.fetchAdress(coordinate)
+    }
+}
+
+final class CustomAnnotation: NSObject, MKAnnotation {
+    dynamic var coordinate: CLLocationCoordinate2D
+    var title: String?
+    var subtitle: String?
+
+    init(coordinate: CLLocationCoordinate2D, title: String? = nil, subtitle: String? = nil) {
+        self.coordinate = coordinate
+        self.title = title
+        self.subtitle = subtitle
     }
 }
