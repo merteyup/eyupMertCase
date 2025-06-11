@@ -32,6 +32,7 @@ final class MapViewController: UIViewController {
         setupButtons()
 
         addObservers()
+        showStoredAnnotations()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -99,6 +100,17 @@ final class MapViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }
+    
+    private func showStoredAnnotations() {
+        let storedPoints = viewModel.loadStoredLocations()
+        for point in storedPoints {
+            let coordinate = CLLocationCoordinate2D(latitude: point.latitude,
+                                                    longitude: point.longitude)
+            let annotation = CustomAnnotation(coordinate: coordinate,
+                                              title: "Ziyaret Noktası")
+            mapView.addAnnotation(annotation)
+        }
+    }
 
     // MARK: - Actions
     @objc private func didTapTrackingButton() {
@@ -106,7 +118,7 @@ final class MapViewController: UIViewController {
     }
 
     @objc private func didTapResetButton() {
-        // Implement reset logic in viewModel
+        viewModel.clearVisitPoints()
     }
 
     @objc private func didTapCenterMapButton() {
@@ -222,7 +234,8 @@ extension MapViewController: MapViewDelegate {
     }
     
     func handleRouteReset() {
-        print("routeReset")
+        let annotationsToRemove = mapView.annotations.compactMap { $0 as? CustomAnnotation }
+        mapView.removeAnnotations(annotationsToRemove)
     }
     
     func updateTrackingButtonAppearance(_ isTracking: Bool) {

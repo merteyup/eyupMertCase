@@ -5,19 +5,23 @@
 //  Created by Eyüp Mert on 11.06.2025.
 //
 
-import Foundation
 import CoreLocation.CLLocation
+import Foundation
+import SwiftData
 
 final class MapViewModel: MapVMProtocol {
     
     var locationManager: (any LocationManagerProtocol)
     weak var delegate: (any MapViewDelegate)?
+    private let visitStore: VisitStoreProtocol
     private var fetchedAddresses: Set<String> = []
     
-    init(locationManager: LocationManagerProtocol) {
+    init(locationManager: LocationManagerProtocol,
+         visitStore: VisitStoreProtocol) {
         self.locationManager = locationManager
+        self.visitStore = visitStore
     }
-   
+    
     func fetchAdress(_ coordinate: CLLocationCoordinate2D) {
         let key = makeAddressKey(for: coordinate)
         guard shouldFetchAddress(for: key) else { return }
@@ -26,25 +30,30 @@ final class MapViewModel: MapVMProtocol {
             self?.handleGeocodeResult(result, coordinate: coordinate)
         }
     }
-
+    
     private func shouldFetchAddress(for key: String) -> Bool {
         guard !fetchedAddresses.contains(key) else { return false }
         fetchedAddresses.insert(key)
         return true
     }
-
-    private func reverseGeocode(coordinate: CLLocationCoordinate2D,
-                                completion: @escaping (Result<[CLPlacemark]?, Error>) -> Void) {
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        location.getAddressFromLatLon(completion: completion)
-    }
-
+    
+    private func reverseGeocode(
+        coordinate: CLLocationCoordinate2D,
+        completion: @escaping (
+            Result<[CLPlacemark]?, Error>
+        ) -> Void) {
+            let location = CLLocation(latitude: coordinate.latitude,
+                                      longitude: coordinate.longitude)
+            location.getAddressFromLatLon(completion: completion)
+        }
+    
     private func handleGeocodeResult(_ result: Result<[CLPlacemark]?, Error>,
                                      coordinate: CLLocationCoordinate2D) {
         switch result {
         case .success(let placemarks):
             guard let placemark = placemarks?.first else { return }
-            delegate?.handleOutput(.selectedAddress(placemark.getAddress(), coordinate))
+            delegate?.handleOutput(.selectedAddress(placemark.getAddress(),
+                                                    coordinate))
         case .failure(let error):
             delegate?.handleOutput(.anyError(error.localizedDescription))
         }
@@ -57,8 +66,18 @@ final class MapViewModel: MapVMProtocol {
     func startTracking() {
         locationManager.didLocationAuthAsked()
     }
+
+    func saveLocation(_ coordinate: CLLocationCoordinate2D) {
+        visitStore.saveVisitPoint(latitude: coordinate.latitude,
+                                  longitude: coordinate.longitude)
+    }
     
-    func resetRoute() {
+    func loadStoredLocations() -> [VisitPoint] {
+        visitStore.fetchAllVisitPoints()
+    }
+    
+    func clearVisitPoints() {
+        visitStore.deleteAllVisitPoints()
         delegate?.handleOutput(.routeReset)
     }
 }
@@ -72,6 +91,7 @@ extension MapViewModel: LocationManagerDelegate {
     
     func startTracking(coordinate: CLLocationCoordinate2D) {
         delegate?.handleOutput(.trackingStarted(coordinate))
+        saveLocation(coordinate)
     }
     
     func navigateToAppSettings() {

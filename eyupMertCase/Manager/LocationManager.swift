@@ -60,8 +60,9 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     
     func stopLocationManager() {
         guard isTracking else { return }
-        isTracking = false
         locationManager.stopUpdatingLocation()
+        locationManager.stopMonitoringSignificantLocationChanges()
+        isTracking = false
     }
     
     func didLocationAuthAsked() {
@@ -93,7 +94,8 @@ final class LocationManager: NSObject, LocationManagerProtocol {
 }
 
 extension LocationManager: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    func locationManager(_ manager: CLLocationManager,
+                         didUpdateLocations locations: [CLLocation]) {
         guard let last = locations.last,
               last.horizontalAccuracy < 20 else { return }
         trackedLocations.append(last)

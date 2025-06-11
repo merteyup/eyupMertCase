@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import SwiftData
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    let container = try! ModelContainer(for: VisitPoint.self)
 
     func scene(_ scene: UIScene,
                willConnectTo session: UISceneSession,
@@ -18,7 +20,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        let rootVC = MapViewRouter.make()
+        let context = container.mainContext
+        let rootVC = MapViewRouter.make(context: context)
         window.rootViewController = rootVC
         window.makeKeyAndVisible()
         self.window = window

@@ -5,14 +5,18 @@
 //  Created by Eyüp Mert on 11.06.2025.
 //
 
+import SwiftData
+
 enum MapViewRouter {
-    static func make(with viewModel: MapViewModel? = nil) -> MapViewController {
+    static func make(context: ModelContext) -> MapViewController {
         let locationManager = LocationManager.shared
-        let vm = viewModel ?? MapViewModel(locationManager: locationManager)
+        let visitStore = SwiftDataVisitStore(context: context)
+        let viewModel = MapViewModel(locationManager: locationManager,
+                                     visitStore: visitStore)
         let viewController = MapViewController()
-        viewController.viewModel = vm
-        vm.delegate = viewController
-        locationManager.delegate = vm
+        viewController.viewModel = viewModel
+        viewModel.delegate = viewController
+        locationManager.delegate = viewModel
         return viewController
     }
 }

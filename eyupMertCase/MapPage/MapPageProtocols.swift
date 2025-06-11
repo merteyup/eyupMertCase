@@ -19,6 +19,8 @@ protocol MapVMProtocol: AnyObject {
     var locationManager: LocationManagerProtocol { get }
     func fetchAdress(_ coordinate: CLLocationCoordinate2D)
     func startTracking()
+    func loadStoredLocations() -> [VisitPoint]
+    func clearVisitPoints()
 }
 
 /// View Model Output
