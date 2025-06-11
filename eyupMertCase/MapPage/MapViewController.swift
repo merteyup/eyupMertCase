@@ -143,6 +143,7 @@ class MapViewController: UIViewController {
 extension MapViewController: MapViewDelegate {
     func handleOutput(_ output: MapVMOutput) {
         // TODO: Handle Outputs
+        print("Output: \(output)")
     }
 }
 

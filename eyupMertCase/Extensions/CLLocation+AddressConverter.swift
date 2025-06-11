@@ -8,14 +8,15 @@
 import CoreLocation
 
 extension CLLocation {
-    func getAddressFromLatLon(completion: @escaping ([CLPlacemark]?) -> Void) {
+    func getAddressFromLatLon(completion: @escaping (Result<[CLPlacemark]?, Error>) -> Void) {
        let geocoder = CLGeocoder()
        geocoder.reverseGeocodeLocation(self, completionHandler: { (placemarks, error) in
-           if let error = error {
+           if let error {
                print("Reverse geocode failed: \(error.localizedDescription)")
-               return
+               completion(.failure(error))
+           } else {
+               completion(.success(placemarks))
            }
-           completion(placemarks)
        })
    }
 }

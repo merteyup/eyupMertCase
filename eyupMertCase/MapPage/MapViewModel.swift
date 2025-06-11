@@ -17,8 +17,14 @@ final class MapViewModel: MapVMProtocol {
         let location = CLLocation(latitude: coordinate.latitude,
                                   longitude: coordinate.longitude)
         
-        location.getAddressFromLatLon { placemarks in
-            <#code#>
+        location.getAddressFromLatLon { [weak self] result in
+            switch result {
+            case .success(let placemarks):
+                guard let placemark = placemarks?.first else { return }
+                self?.delegate?.handleOutput(.selectedAddress(placemark.getAddress()))
+            case .failure(let failure):
+                self?.delegate?.handleOutput(.anyError(failure.localizedDescription))
+            }
         }
     }
     
