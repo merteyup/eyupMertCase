@@ -11,6 +11,7 @@ struct Constants {
     static let alertMessage = "Uygulamamızın düzgün çalışabilmesi için konum iznine ihtiyacı var."
     static let alertGoToSettings = "Ayarlar'a Git"
     static let alertCancel = "Vazgeç"
-    static let trackingButtonTitle = "Konumu Takip Et"
+    static let startTrackingTitle = "Takibi Başlat"
+    static let stopTrackingTitle = "Takibi Durdur"
     static let resetButtonTitle = "Rotayı Sıfırla"
 }

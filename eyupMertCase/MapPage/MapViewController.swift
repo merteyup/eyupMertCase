@@ -17,9 +17,24 @@ final class MapViewController: UIViewController {
     private var shouldFollowUser = true
     private var isProgrammaticRegionChange = false
 
-    private lazy var trackingButton: UIButton = makeButton(title: Constants.trackingButtonTitle, backgroundColor: .systemBlue)
+    private lazy var trackingButton: UIButton = makeButton(title: Constants.startTrackingTitle, backgroundColor: .systemBlue)
     private lazy var resetButton: UIButton = makeButton(title: Constants.resetButtonTitle, backgroundColor: .systemRed)
-    private lazy var centerMapButton: UIButton = makeButton(title: nil, backgroundColor: .systemRed)
+    private lazy var centerMapButton: UIButton = {
+        let button = UIButton(type: .system)
+        let image = UIImage(systemName: "location.fill")
+        button.setImage(image, for: .normal)
+        button.tintColor = .systemBlue
+        button.backgroundColor = UIColor.white.withAlphaComponent(0.9)
+        button.layer.cornerRadius = 25
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOpacity = 0.2
+        button.layer.shadowOffset = CGSize(width: 0, height: 2)
+        button.layer.shadowRadius = 4
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.widthAnchor.constraint(equalToConstant: 50).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        return button
+    }()
 
     // MARK: - Lifecycle
 
@@ -33,6 +48,9 @@ final class MapViewController: UIViewController {
 
         addObservers()
         showStoredAnnotations()
+        
+        updateTrackingButton(isTracking: false)
+        updateResetButton()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -106,8 +124,7 @@ final class MapViewController: UIViewController {
         for point in storedPoints {
             let coordinate = CLLocationCoordinate2D(latitude: point.latitude,
                                                     longitude: point.longitude)
-            let annotation = CustomAnnotation(coordinate: coordinate,
-                                              title: "Ziyaret Noktası")
+            let annotation = CustomAnnotation(coordinate: coordinate)
             mapView.addAnnotation(annotation)
         }
     }
@@ -166,6 +183,17 @@ final class MapViewController: UIViewController {
             self.isProgrammaticRegionChange = false
         }
     }
+    
+    private func updateTrackingButton(isTracking: Bool) {
+        trackingButton.setTitle(isTracking ? Constants.stopTrackingTitle : Constants.startTrackingTitle, for: .normal)
+        trackingButton.backgroundColor = isTracking ? .systemBlue : .systemGreen
+    }
+
+    private func updateResetButton() {
+        let hasStoredPoints = !viewModel.loadStoredLocations().isEmpty
+        resetButton.isEnabled = hasStoredPoints
+        resetButton.backgroundColor = hasStoredPoints ? .systemRed : .systemGray
+    }
 }
 
 // MARK: - MapViewDelegate
@@ -201,9 +229,11 @@ extension MapViewController: MapViewDelegate {
     func handleTrackingStarted(_ location: CLLocationCoordinate2D) {
         currentLocation = location
         
-        let annotation = CustomAnnotation(coordinate: location, title: "Ziyaret Noktası")
+        let annotation = CustomAnnotation(coordinate: location)
         mapView.addAnnotation(annotation)
         
+        updateResetButton()
+
         if shouldFollowUser {
             updateRegion(location)
         }
@@ -233,14 +263,15 @@ extension MapViewController: MapViewDelegate {
         print("trackingStopped")
     }
     
-    func handleRouteReset() {
+    private func handleRouteReset() {
         let annotationsToRemove = mapView.annotations.compactMap { $0 as? CustomAnnotation }
         mapView.removeAnnotations(annotationsToRemove)
+        updateResetButton()
     }
     
-    func updateTrackingButtonAppearance(_ isTracking: Bool) {
+    private func updateTrackingButtonAppearance(_ isTracking: Bool) {
         DispatchQueue.main.async {
-            self.trackingButton.backgroundColor = isTracking ? .green : .gray
+            self.updateTrackingButton(isTracking: isTracking)
         }
     }
 }
