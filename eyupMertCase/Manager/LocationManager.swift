@@ -74,6 +74,7 @@ extension LocationManager: CLLocationManagerDelegate {
             delegate?.startTracking(coordinate: newLastLocation)
             trackedCoordinates.removeAll()
             lastLocation = newLastLocation
+            print("Location: \(lastLocation)")
         }
     }
     

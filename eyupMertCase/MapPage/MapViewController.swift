@@ -13,6 +13,9 @@ final class MapViewController: UIViewController {
     // MARK: - Properties
     private let mapView = MKMapView()
     var viewModel: MapVMProtocol!
+    var currentLocation: CLLocationCoordinate2D?
+    private var shouldFollowUser = true
+    private var isProgrammaticRegionChange = false
 
     private lazy var trackingButton: UIButton = makeButton(title: Constants.trackingButtonTitle, backgroundColor: .systemBlue)
     private lazy var resetButton: UIButton = makeButton(title: Constants.resetButtonTitle, backgroundColor: .systemRed)
@@ -105,7 +108,13 @@ final class MapViewController: UIViewController {
     }
 
     @objc private func didTapCenterMapButton() {
-        mapView.userTrackingMode = .follow
+        guard let userLocation = currentLocation else {
+            print("Konum henüz alınmadı")
+            return
+        }
+
+        shouldFollowUser = true
+        updateRegion(userLocation)
     }
 
     @objc private func appWillEnterForeground() {
@@ -130,6 +139,20 @@ final class MapViewController: UIViewController {
 
         present(alert, animated: true)
     }
+    
+    private func updateRegion(_ coordinate: CLLocationCoordinate2D) {
+        isProgrammaticRegionChange = true
+
+        let region = MKCoordinateRegion(center: coordinate,
+                                        latitudinalMeters: 300,
+                                        longitudinalMeters: 300)
+        mapView.setRegion(region, animated: true)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.isProgrammaticRegionChange = false
+        }
+    }
+
 
 }
 
@@ -138,15 +161,17 @@ extension MapViewController: MapViewDelegate {
     func handleOutput(_ output: MapVMOutput) {
         switch output {
         case .trackingStarted(let location):
-            mapView.showsUserLocation = true
-
-            if let userLocation = mapView.userLocation.location {
-                let region = MKCoordinateRegion(center: userLocation.coordinate,
-                                                latitudinalMeters: 300,
-                                                longitudinalMeters: 300)
-                mapView.setRegion(region, animated: true)
+            currentLocation = location
+            
+            let annotation = MKPointAnnotation()
+            annotation.coordinate = location
+            annotation.title = "Ziyaret Noktası"
+            mapView.addAnnotation(annotation)
+            
+            if shouldFollowUser {
+                updateRegion(location)
             }
-
+            
         case .anyError(let message):
             print("Error: \(message)")
         case .selectedAddress:
@@ -165,7 +190,9 @@ extension MapViewController: MapViewDelegate {
 
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
-    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
-        mapView.userTrackingMode = .none
+    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+        if !isProgrammaticRegionChange {
+            shouldFollowUser = false
+        }
     }
 }
