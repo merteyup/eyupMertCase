@@ -30,4 +30,5 @@ enum MapVMOutput{
     case trackingStopped
     case routeReset
     case navigateToAppSettings
+    case trackingStatusChanged(Bool)
 }

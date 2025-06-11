@@ -20,6 +20,7 @@ protocol LocationManagerProtocol {
 protocol LocationManagerDelegate: AnyObject {
     func navigateToAppSettings()
     func startTracking(coordinate: CLLocationCoordinate2D)
+    func trackingStateDidChange(isTracking: Bool)
 }
 
 final class LocationManager: NSObject, LocationManagerProtocol {
@@ -28,8 +29,15 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     private let locationManager = CLLocationManager()
     private var lastLocation: CLLocationCoordinate2D?
     private var trackedLocations: [CLLocation] = []
-    var isTracking = false
     static let shared = LocationManager()
+    
+    private var isTracking = false {
+        didSet {
+            if oldValue != isTracking {
+                delegate?.trackingStateDidChange(isTracking: isTracking)
+            }
+        }
+    }
     
     override init() {
         super.init()

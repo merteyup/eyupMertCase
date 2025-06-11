@@ -66,6 +66,10 @@ final class MapViewModel: MapVMProtocol {
 
 extension MapViewModel: LocationManagerDelegate {
     
+    func trackingStateDidChange(isTracking: Bool) {
+        delegate?.handleOutput(.trackingStatusChanged(isTracking))
+    }
+    
     func startTracking(coordinate: CLLocationCoordinate2D) {
         delegate?.handleOutput(.trackingStarted(coordinate))
     }
