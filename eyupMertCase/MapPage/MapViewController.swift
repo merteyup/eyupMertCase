@@ -15,6 +15,7 @@ final class MapViewController: UIViewController {
     var viewModel: MapVMProtocol!
     var currentLocation: CLLocationCoordinate2D?
     private var shouldFollowUser = true
+    private var isFirstAppearance = true
     private var isProgrammaticRegionChange = false
 
     private lazy var trackingButton: UIButton = makeButton(title: Constants.startTrackingTitle, backgroundColor: .systemBlue)
@@ -33,6 +34,7 @@ final class MapViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.widthAnchor.constraint(equalToConstant: 50).isActive = true
         button.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        button.isHidden = true
         return button
     }()
 
@@ -51,22 +53,6 @@ final class MapViewController: UIViewController {
         
         updateTrackingButton(isTracking: false)
         updateResetButton()
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        // TODO: Use this information from scene delegate
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(appWillEnterForeground),
-                                               name: UIApplication.willEnterForegroundNotification,
-                                               object: nil)
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        // TODO: Use this information from scene delegate
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification,
-                                                  object: nil)
     }
 
     // MARK: - Setup
@@ -148,10 +134,6 @@ final class MapViewController: UIViewController {
         updateRegion(userLocation)
     }
 
-    @objc private func appWillEnterForeground() {
-        viewModel.startTracking()
-    }
-
     // MARK: - Helpers
 
     private func showAlertToOpenSettings() {
@@ -194,6 +176,12 @@ final class MapViewController: UIViewController {
         resetButton.isEnabled = hasStoredPoints
         resetButton.backgroundColor = hasStoredPoints ? .systemRed : .systemGray
     }
+    
+    private func updateCenterMapButton() {
+        DispatchQueue.main.async {
+            self.centerMapButton.isHidden = false
+        }
+    }
 }
 
 // MARK: - MapViewDelegate
@@ -223,6 +211,9 @@ extension MapViewController: MapViewDelegate {
             
         case .trackingStatusChanged(let isTracking):
             updateTrackingButtonAppearance(isTracking)
+            if isTracking {
+               updateCenterMapButton()
+            }
         }
     }
     
@@ -280,10 +271,16 @@ extension MapViewController: MapViewDelegate {
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+        if isFirstAppearance {
+            isFirstAppearance = false
+            return
+        }
+        
         if !isProgrammaticRegionChange {
             shouldFollowUser = false
         }
     }
+
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         guard let coordinate = view.annotation?.coordinate else { return }
