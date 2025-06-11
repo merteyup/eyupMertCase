@@ -8,6 +8,8 @@
 import Foundation
 import CoreLocation.CLLocation
 
+// MARK: - Protocols
+
 protocol LocationManagerProtocol {
     var delegate: LocationManagerDelegate? { get set }
     func didLocationAuthAsked()
@@ -23,7 +25,10 @@ protocol LocationManagerDelegate: AnyObject {
     func trackingStateDidChange(isTracking: Bool)
 }
 
+
 final class LocationManager: NSObject, LocationManagerProtocol {
+    
+    // MARK: - Properties
     
     weak var delegate: LocationManagerDelegate?
     private let locationManager = CLLocationManager()
@@ -39,10 +44,14 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         }
     }
     
+    // MARK: - Init
+    
     override init() {
         super.init()
         locationManager.delegate = self
     }
+    
+    // MARK: - Public Methods
     
     func startLocationManager() {
         guard !isTracking else { return }
@@ -93,6 +102,8 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     }
 }
 
+// MARK: - CLLocationManagerDelegate
+
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager,
                          didUpdateLocations locations: [CLLocation]) {
@@ -102,7 +113,7 @@ extension LocationManager: CLLocationManagerDelegate {
         
         let distance = totalTraveledDistance()
         print("Toplam kat edilen mesafe: \(Int(distance)) metre")
-
+        
         if distance >= 100 {
             delegate?.startTracking(coordinate: last.coordinate)
             trackedLocations.removeAll()
@@ -132,18 +143,20 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
+    // MARK: - Helpers
+    
     func totalTraveledDistance() -> CLLocationDistance {
         guard trackedLocations.count > 1 else { return 0 }
-
+        
         var totalDistance: CLLocationDistance = 0
-
+        
         for i in 1..<trackedLocations.count {
             let previousLocation = trackedLocations[i - 1]
             let currentLocation = trackedLocations[i]
             let distance = previousLocation.distance(from: currentLocation)
             totalDistance += distance
         }
-
+        
         return totalDistance
     }
 }

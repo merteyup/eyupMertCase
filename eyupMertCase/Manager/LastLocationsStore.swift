@@ -8,18 +8,29 @@
 import Foundation
 import SwiftData
 
+// MARK: - Protocol
+
 protocol LastLocationsStoreProtocol {
     func saveLastLocationVisit(latitude: Double, longitude: Double)
     func loadStoredLocations() -> [VisitPoint]
     func deleteVisitedLocations()
 }
 
+// MARK: - Store
+
 final class LastLocationsStore: LastLocationsStoreProtocol {
+    
+    // MARK: - Properties
+    
     private let context: ModelContext
+    
+    // MARK: - Init
     
     init(context: ModelContext) {
         self.context = context
     }
+    
+    // MARK: - Functions
     
     func saveLastLocationVisit(latitude: Double,
                                longitude: Double) {

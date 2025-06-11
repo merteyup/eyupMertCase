@@ -9,15 +9,16 @@ import UIKit
 import MapKit
 
 final class MapViewController: UIViewController {
-
+    
     // MARK: - Properties
+    
     private let mapView = MKMapView()
     var viewModel: MapVMProtocol!
     var currentLocation: CLLocationCoordinate2D?
     private var shouldFollowUser = true
     private var isFirstAppearance = true
     private var isProgrammaticRegionChange = false
-
+    
     private lazy var trackingButton: UIButton = makeButton(title: Constants.startTrackingTitle, backgroundColor: .systemBlue)
     private lazy var resetButton: UIButton = makeButton(title: Constants.resetButtonTitle, backgroundColor: .systemRed)
     private lazy var centerMapButton: UIButton = {
@@ -37,24 +38,23 @@ final class MapViewController: UIViewController {
         button.isHidden = true
         return button
     }()
-
+    
     // MARK: - Lifecycle
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.delegate = self
         mapView.delegate = self
-
+        
         setupMapView()
         setupButtons()
-
         addObservers()
         showStoredAnnotations()
         
         updateTrackingButton(isTracking: false)
         updateResetButton()
     }
-
+    
     // MARK: - Setup
     
     private func addObservers() {
@@ -73,28 +73,28 @@ final class MapViewController: UIViewController {
             mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
-
+    
     private func setupButtons() {
         let stackView = UIStackView(arrangedSubviews: [resetButton, trackingButton])
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
         stackView.spacing = 12
         stackView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         view.addSubview(centerMapButton)
         view.addSubview(stackView)
-
+        
         NSLayoutConstraint.activate([
             centerMapButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             centerMapButton.bottomAnchor.constraint(equalTo: stackView.topAnchor, constant: -16),
-
+            
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             stackView.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-
+    
     private func makeButton(title: String?, backgroundColor: UIColor) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
@@ -108,59 +108,54 @@ final class MapViewController: UIViewController {
     private func showStoredAnnotations() {
         let storedPoints = viewModel.loadStoredLocations()
         for point in storedPoints {
-            let coordinate = CLLocationCoordinate2D(latitude: point.latitude,
-                                                    longitude: point.longitude)
+            let coordinate = CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
             let annotation = CustomAnnotation(coordinate: coordinate)
             mapView.addAnnotation(annotation)
         }
     }
-
+    
     // MARK: - Actions
+    
     @objc private func didTapTrackingButton() {
         viewModel.startTracking()
     }
-
+    
     @objc private func didTapResetButton() {
         viewModel.clearVisitPoints()
     }
-
+    
     @objc private func didTapCenterMapButton() {
         guard let userLocation = currentLocation else {
             print("Konum henüz alınmadı")
             return
         }
-
+        
         shouldFollowUser = true
         updateRegion(userLocation)
     }
-
-    // MARK: - Helpers
-
+    
+    // MARK: - UI Updates
+    
     private func showAlertToOpenSettings() {
         let alert = UIAlertController(title: Constants.alertTitle,
                                       message: Constants.alertMessage,
                                       preferredStyle: .alert)
-
+        
         alert.addAction(UIAlertAction(title: Constants.alertGoToSettings, style: .default) { _ in
             if let appSettings = URL(string: UIApplication.openSettingsURLString),
                UIApplication.shared.canOpenURL(appSettings) {
                 UIApplication.shared.open(appSettings)
             }
         })
-
+        
         alert.addAction(UIAlertAction(title: Constants.alertCancel, style: .cancel))
-
         present(alert, animated: true)
     }
     
     private func updateRegion(_ coordinate: CLLocationCoordinate2D) {
         isProgrammaticRegionChange = true
-
-        let region = MKCoordinateRegion(center: coordinate,
-                                        latitudinalMeters: 300,
-                                        longitudinalMeters: 300)
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 300, longitudinalMeters: 300)
         mapView.setRegion(region, animated: true)
-
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.isProgrammaticRegionChange = false
         }
@@ -170,7 +165,7 @@ final class MapViewController: UIViewController {
         trackingButton.setTitle(isTracking ? Constants.stopTrackingTitle : Constants.startTrackingTitle, for: .normal)
         trackingButton.backgroundColor = isTracking ? .systemBlue : .systemGreen
     }
-
+    
     private func updateResetButton() {
         let hasStoredPoints = !viewModel.loadStoredLocations().isEmpty
         resetButton.isEnabled = hasStoredPoints
@@ -185,46 +180,38 @@ final class MapViewController: UIViewController {
 }
 
 // MARK: - MapViewDelegate
+
 extension MapViewController: MapViewDelegate {
     func handleOutput(_ output: MapVMOutput) {
         switch output {
         case .trackingStarted(let location):
             handleTrackingStarted(location)
-            
         case .anyError(let message):
             handleError(message)
-            
         case .selectedAddress(let address, let coordinate):
             updateAnnotationTitle(address, at: coordinate)
-            
         case .locationServicesDisabled:
             handleLocationServicesDisabled()
-            
         case .trackingStopped:
             handleTrackingStopped()
-            
         case .routeReset:
             handleRouteReset()
-            
         case .navigateToAppSettings:
             showAlertToOpenSettings()
-            
         case .trackingStatusChanged(let isTracking):
             updateTrackingButtonAppearance(isTracking)
             if isTracking {
-               updateCenterMapButton()
+                updateCenterMapButton()
             }
         }
     }
     
     func handleTrackingStarted(_ location: CLLocationCoordinate2D) {
         currentLocation = location
-        
         let annotation = CustomAnnotation(coordinate: location)
         mapView.addAnnotation(annotation)
-        
         updateResetButton()
-
+        
         if shouldFollowUser {
             updateRegion(location)
         }
@@ -247,10 +234,12 @@ extension MapViewController: MapViewDelegate {
     }
     
     func handleLocationServicesDisabled() {
+        // TODO: Remove this cases if not necessary
         print("locationServicesDisabled")
     }
     
     func handleTrackingStopped() {
+        // TODO: Remove this cases if not necessary
         print("trackingStopped")
     }
     
@@ -267,8 +256,8 @@ extension MapViewController: MapViewDelegate {
     }
 }
 
-
 // MARK: - MKMapViewDelegate
+
 extension MapViewController: MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
         if isFirstAppearance {
@@ -280,7 +269,6 @@ extension MapViewController: MKMapViewDelegate {
             shouldFollowUser = false
         }
     }
-
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         guard let coordinate = view.annotation?.coordinate else { return }

@@ -9,10 +9,15 @@ import Foundation
 import MapKit.MKAnnotation
 
 final class CustomAnnotation: NSObject, MKAnnotation {
+    
+    // MARK: - Properties
+    
     dynamic var coordinate: CLLocationCoordinate2D
     var title: String?
     var subtitle: String?
-
+    
+    // MARK: - Init
+    
     init(coordinate: CLLocationCoordinate2D,
          title: String? = nil,
          subtitle: String? = nil) {

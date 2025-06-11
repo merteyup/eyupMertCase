@@ -9,17 +9,42 @@ import CoreLocation.CLLocation
 import Foundation
 import SwiftData
 
+
 final class MapViewModel: MapVMProtocol {
+    
+    // MARK: - Properties
     
     var locationManager: (any LocationManagerProtocol)
     weak var delegate: (any MapViewDelegate)?
     private let lastLocationsStore: LastLocationsStoreProtocol
     private var fetchedAddresses: Set<String> = []
     
+    // MARK: - Init
+    
     init(locationManager: LocationManagerProtocol,
          lastLocationsStore: LastLocationsStoreProtocol) {
         self.locationManager = locationManager
         self.lastLocationsStore = lastLocationsStore
+    }
+    
+    // MARK: - Public Methods
+    
+    func startTracking() {
+        locationManager.didLocationAuthAsked()
+    }
+    
+    func saveLocation(_ coordinate: CLLocationCoordinate2D) {
+        lastLocationsStore.saveLastLocationVisit(latitude: coordinate.latitude,
+                                                 longitude: coordinate.longitude)
+    }
+    
+    func loadStoredLocations() -> [VisitPoint] {
+        lastLocationsStore.loadStoredLocations()
+    }
+    
+    func clearVisitPoints() {
+        lastLocationsStore.deleteVisitedLocations()
+        delegate?.handleOutput(.routeReset)
     }
     
     func fetchAdress(_ coordinate: CLLocationCoordinate2D) {
@@ -30,6 +55,8 @@ final class MapViewModel: MapVMProtocol {
             self?.handleGeocodeResult(result, coordinate: coordinate)
         }
     }
+    
+    // MARK: - Private Helpers
     
     private func shouldFetchAddress(for key: String) -> Bool {
         guard !fetchedAddresses.contains(key) else { return false }
@@ -62,26 +89,9 @@ final class MapViewModel: MapVMProtocol {
     private func makeAddressKey(for coordinate: CLLocationCoordinate2D) -> String {
         "\(coordinate.latitude)-\(coordinate.longitude)"
     }
-    
-    func startTracking() {
-        locationManager.didLocationAuthAsked()
-    }
-
-    func saveLocation(_ coordinate: CLLocationCoordinate2D) {
-        lastLocationsStore.saveLastLocationVisit(latitude: coordinate.latitude,
-                                  longitude: coordinate.longitude)
-    }
-    
-    func loadStoredLocations() -> [VisitPoint] {
-        lastLocationsStore.loadStoredLocations()
-    }
-    
-    func clearVisitPoints() {
-        lastLocationsStore.deleteVisitedLocations()
-        delegate?.handleOutput(.routeReset)
-    }
 }
 
+// MARK: - LocationManagerDelegate
 
 extension MapViewModel: LocationManagerDelegate {
     
@@ -97,5 +107,4 @@ extension MapViewModel: LocationManagerDelegate {
     func navigateToAppSettings() {
         delegate?.handleOutput(.navigateToAppSettings)
     }
-    
 }
