@@ -14,8 +14,8 @@ final class MapViewController: UIViewController {
     private let mapView = MKMapView()
     var viewModel: MapVMProtocol!
 
-    private lazy var trackingButton: UIButton = makeButton(title: "Konumu Takip Et", backgroundColor: .systemBlue)
-    private lazy var resetButton: UIButton = makeButton(title: "Rotayı Sıfırla", backgroundColor: .systemRed)
+    private lazy var trackingButton: UIButton = makeButton(title: Constants.trackingButtonTitle, backgroundColor: .systemBlue)
+    private lazy var resetButton: UIButton = makeButton(title: Constants.resetButtonTitle, backgroundColor: .systemRed)
     private lazy var centerMapButton: UIButton = makeButton(title: nil, backgroundColor: .systemRed)
 
     // MARK: - Lifecycle
@@ -113,22 +113,24 @@ final class MapViewController: UIViewController {
     }
 
     // MARK: - Helpers
+
     private func showAlertToOpenSettings() {
-        let alert = UIAlertController(title: "Attention",
-                                      message: "Our app needs your permission to work properly",
+        let alert = UIAlertController(title: Constants.alertTitle,
+                                      message: Constants.alertMessage,
                                       preferredStyle: .alert)
 
-        alert.addAction(UIAlertAction(title: "Go to Settings", style: .default) { _ in
+        alert.addAction(UIAlertAction(title: Constants.alertGoToSettings, style: .default) { _ in
             if let appSettings = URL(string: UIApplication.openSettingsURLString),
                UIApplication.shared.canOpenURL(appSettings) {
                 UIApplication.shared.open(appSettings)
             }
         })
 
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: Constants.alertCancel, style: .cancel))
 
         present(alert, animated: true)
     }
+
 }
 
 // MARK: - MapViewDelegate

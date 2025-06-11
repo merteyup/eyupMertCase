@@ -18,6 +18,7 @@
 		C48EFBFB2DF989C900BB4910 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBED2DF989C900BB4910 /* MapViewController.swift */; };
 		C48EFBFC2DF989C900BB4910 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBEE2DF989C900BB4910 /* MapViewModel.swift */; };
 		C48EFBFE2DF992DB00BB4910 /* MapViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBFD2DF992D800BB4910 /* MapViewRouter.swift */; };
+		C48EFC012DF9B74200BB4910 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFC002DF9B74200BB4910 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		C48EFBEE2DF989C900BB4910 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		C48EFBF02DF989C900BB4910 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C48EFBFD2DF992D800BB4910 /* MapViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewRouter.swift; sourceTree = "<group>"; };
+		C48EFC002DF9B74200BB4910 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		C49D00C42DF965C8002432CF /* eyupMertCase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = eyupMertCase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -50,6 +52,7 @@
 		C48EFBE62DF989C900BB4910 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				C48EFC002DF9B74200BB4910 /* Constants.swift */,
 				C48EFBE12DF989C900BB4910 /* AppDelegate.swift */,
 				C48EFBE22DF989C900BB4910 /* Assets.xcassets */,
 				C48EFBE42DF989C900BB4910 /* LaunchScreen.storyboard */,
@@ -192,6 +195,7 @@
 				C48EFBF72DF989C900BB4910 /* CLLocation+AddressConverter.swift in Sources */,
 				C48EFBF82DF989C900BB4910 /* CLPlacemark+GetAddress.swift in Sources */,
 				C48EFBFE2DF992DB00BB4910 /* MapViewRouter.swift in Sources */,
+				C48EFC012DF9B74200BB4910 /* Constants.swift in Sources */,
 				C48EFBF92DF989C900BB4910 /* LocationManager.swift in Sources */,
 				C48EFBFA2DF989C900BB4910 /* MapPageProtocols.swift in Sources */,
 				C48EFBFB2DF989C900BB4910 /* MapViewController.swift in Sources */,
