@@ -152,8 +152,6 @@ final class MapViewController: UIViewController {
             self.isProgrammaticRegionChange = false
         }
     }
-
-
 }
 
 // MARK: - MapViewDelegate

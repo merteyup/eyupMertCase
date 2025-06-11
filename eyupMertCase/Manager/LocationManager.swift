@@ -10,7 +10,7 @@ import CoreLocation.CLLocation
 
 protocol LocationManagerProtocol {
     var delegate: LocationManagerDelegate? { get set }
-    func locationAuthorizationDidAsk()
+    func didLocationAuthAsked()
     func startLocationManager()
     func stopLocationManager()
 }
@@ -25,7 +25,7 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     weak var delegate: LocationManagerDelegate?
     private let locationManager = CLLocationManager()
     private var lastLocation: CLLocationCoordinate2D?
-    private var trackedCoordinates: [CLLocationCoordinate2D] = []
+    private var trackedLocations: [CLLocation] = []
     private var isTracking = false
     
     override init() {
@@ -38,7 +38,7 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         isTracking = true
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.startMonitoringSignificantLocationChanges()
-        locationManager.distanceFilter = 5
+        locationManager.distanceFilter = 50
         locationManager.startUpdatingLocation()
         lastLocation = locationManager.location?.coordinate
         guard let lastLocation else { return }
@@ -51,7 +51,7 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         locationManager.stopUpdatingLocation()
     }
     
-    func locationAuthorizationDidAsk() {
+    func didLocationAuthAsked() {
         switch locationManager.authorizationStatus {
         case .denied, .restricted:
             delegate?.navigateToAppSettings()
@@ -67,14 +67,16 @@ final class LocationManager: NSObject, LocationManagerProtocol {
 
 extension LocationManager: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let newLastLocation = locations.last?.coordinate else { return }
-        trackedCoordinates.append(newLastLocation)
-        let distance = approximatePathDistance()
+        guard let last = locations.last,
+              last.horizontalAccuracy < 20 else { return }
+        trackedLocations.append(last)
+        let distance = totalTraveledDistance()
+        print("Toplam kat edilen mesafe: \(Int(distance)) metre")
+
         if distance >= 100 {
-            delegate?.startTracking(coordinate: newLastLocation)
-            trackedCoordinates.removeAll()
-            lastLocation = newLastLocation
-            print("Location: \(lastLocation)")
+            delegate?.startTracking(coordinate: last.coordinate)
+            trackedLocations.removeAll()
+            lastLocation = last.coordinate
         }
     }
     
@@ -100,14 +102,18 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
-    func approximatePathDistance() -> CLLocationDistance {
-        guard trackedCoordinates.count > 1 else { return 0 }
-        var total: CLLocationDistance = 0
-        for i in 1..<trackedCoordinates.count {
-            let loc1 = CLLocation(latitude: trackedCoordinates[i-1].latitude, longitude: trackedCoordinates[i-1].longitude)
-            let loc2 = CLLocation(latitude: trackedCoordinates[i].latitude, longitude: trackedCoordinates[i].longitude)
-            total += loc1.distance(from: loc2)
+    func totalTraveledDistance() -> CLLocationDistance {
+        guard trackedLocations.count > 1 else { return 0 }
+
+        var totalDistance: CLLocationDistance = 0
+
+        for i in 1..<trackedLocations.count {
+            let previousLocation = trackedLocations[i - 1]
+            let currentLocation = trackedLocations[i]
+            let distance = previousLocation.distance(from: currentLocation)
+            totalDistance += distance
         }
-        return total
+
+        return totalDistance
     }
 }

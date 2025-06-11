@@ -33,7 +33,7 @@ final class MapViewModel: MapVMProtocol {
     }
     
     func startTracking() {
-        locationManager.locationAuthorizationDidAsk()
+        locationManager.didLocationAuthAsked()
     }
     
     func resetRoute() {

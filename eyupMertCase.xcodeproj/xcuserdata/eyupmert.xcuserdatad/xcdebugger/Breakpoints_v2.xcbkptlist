@@ -63,36 +63,6 @@
             endingLineNumber = "119"
             landmarkName = "MapViewController"
             landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "F0E32489-83FD-441F-8ECB-98630D512D4C - 354e74ca7f52ab39"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "eyupMertCase.MapViewController.appWillEnterForeground() -&gt; ()"
-                  moduleName = "eyupMertCase.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/eyupmert/Documents/eyupMertCase/eyupMertCase/MapPage/MapViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "120"
-                  endingLineNumber = "120">
-               </Location>
-               <Location
-                  uuid = "F0E32489-83FD-441F-8ECB-98630D512D4C - 354e74ca7f52ab1e"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "eyupMertCase.MapViewController.appWillEnterForeground() -&gt; ()"
-                  moduleName = "eyupMertCase.debug.dylib"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/eyupmert/Documents/eyupMertCase/eyupMertCase/MapPage/MapViewController.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "121"
-                  endingLineNumber = "121">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
