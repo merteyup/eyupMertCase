@@ -8,24 +8,63 @@
 import Foundation
 import CoreLocation.CLLocation
 
-final class LocationManager: NSObject {
+protocol LocationManagerProtocol {
+    var delegate: LocationManagerDelegate? { get set }
+    func locationAuthorizationDidAsk()
+    func startLocationManager()
+    func stopLocationManager()
+}
+
+protocol LocationManagerDelegate: AnyObject {
+    func navigateToAppSettings()
+    func startTracking(coordinate: CLLocationCoordinate2D)
+}
+
+final class LocationManager: NSObject, LocationManagerProtocol {
+    
     private let locationManager = CLLocationManager()
     var lastLocation: CLLocationCoordinate2D?
     var trackedCoordinates: [CLLocationCoordinate2D] = []
+    weak var delegate: LocationManagerDelegate?
+    private var isTracking = false
     
     override init() {
         super.init()
-    }
-    
-    func start() {
         locationManager.delegate = self
-        locationManager.requestAlwaysAuthorization()
-        locationManager.allowsBackgroundLocationUpdates = true
-        locationManager.startMonitoringSignificantLocationChanges()
     }
     
-    func stop() {
-        locationManager.stopMonitoringSignificantLocationChanges()
+    func startLocationManager() {
+        guard !isTracking else { return }
+        isTracking = true
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.startMonitoringSignificantLocationChanges()
+        locationManager.distanceFilter = 5
+        locationManager.startUpdatingLocation()
+    }
+    
+    func stopLocationManager() {
+        guard isTracking else { return }
+        isTracking = false
+        locationManager.stopUpdatingLocation()
+    }
+    
+    func didFocusUserLocation() {
+        guard let location = locationManager.location else { return }
+      //  delegate?.focusUserLocationDidUpdate(location: location)
+    }
+    
+    func locationAuthorizationDidAsk() {
+        switch locationManager.authorizationStatus {
+        case .denied, .restricted:
+            delegate?.navigateToAppSettings()
+            return
+        case .notDetermined:
+            locationManager.requestAlwaysAuthorization()
+        case .authorizedAlways, .authorizedWhenInUse:
+            startLocationManager()
+        default:
+            break
+        }
     }
 }
 
@@ -35,6 +74,7 @@ extension LocationManager: CLLocationManagerDelegate {
         trackedCoordinates.append(newLastLocation)
         let distance = approximatePathDistance()
         if distance >= 100 {
+            delegate?.startTracking(coordinate: newLastLocation)
             trackedCoordinates.removeAll()
             lastLocation = newLastLocation
         }
@@ -55,12 +95,10 @@ extension LocationManager: CLLocationManagerDelegate {
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
-        case .denied:
-            locationManager.requestAlwaysAuthorization()
         case .authorizedWhenInUse, .authorizedAlways:
-            locationManager.startMonitoringSignificantLocationChanges()
+            startLocationManager()
         default:
-            locationManager.startMonitoringSignificantLocationChanges()
+            locationManager.requestAlwaysAuthorization()
         }
     }
     

@@ -16,17 +16,18 @@ protocol MapViewDelegate: AnyObject {
 ///  View Model Protocol
 protocol MapVMProtocol: AnyObject {
     var delegate: MapViewDelegate? { get set }
+    var locationManager: LocationManagerProtocol { get }
     func fetchAdress(_ coordinate: CLLocationCoordinate2D)
+    func startTracking()
 }
 
 /// View Model Output
 enum MapVMOutput{
-    case currentLocation(_ location: CLLocationCoordinate2D)
+    case trackingStarted(_ location: CLLocationCoordinate2D)
     case anyError(String)
     case selectedAddress(_ address: String)
     case locationServicesDisabled
-    case trackingStarted
     case trackingStopped
     case routeReset
-    case centerMap
+    case navigateToAppSettings
 }

@@ -17,6 +17,7 @@
 		C48EFBFA2DF989C900BB4910 /* MapPageProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBEC2DF989C900BB4910 /* MapPageProtocols.swift */; };
 		C48EFBFB2DF989C900BB4910 /* MapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBED2DF989C900BB4910 /* MapViewController.swift */; };
 		C48EFBFC2DF989C900BB4910 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBEE2DF989C900BB4910 /* MapViewModel.swift */; };
+		C48EFBFE2DF992DB00BB4910 /* MapViewRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBFD2DF992D800BB4910 /* MapViewRouter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		C48EFBED2DF989C900BB4910 /* MapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewController.swift; sourceTree = "<group>"; };
 		C48EFBEE2DF989C900BB4910 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
 		C48EFBF02DF989C900BB4910 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C48EFBFD2DF992D800BB4910 /* MapViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewRouter.swift; sourceTree = "<group>"; };
 		C49D00C42DF965C8002432CF /* eyupMertCase.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = eyupMertCase.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -76,6 +78,7 @@
 		C48EFBEF2DF989C900BB4910 /* MapPage */ = {
 			isa = PBXGroup;
 			children = (
+				C48EFBFD2DF992D800BB4910 /* MapViewRouter.swift */,
 				C48EFBEC2DF989C900BB4910 /* MapPageProtocols.swift */,
 				C48EFBED2DF989C900BB4910 /* MapViewController.swift */,
 				C48EFBEE2DF989C900BB4910 /* MapViewModel.swift */,
@@ -188,6 +191,7 @@
 				C48EFBF62DF989C900BB4910 /* SceneDelegate.swift in Sources */,
 				C48EFBF72DF989C900BB4910 /* CLLocation+AddressConverter.swift in Sources */,
 				C48EFBF82DF989C900BB4910 /* CLPlacemark+GetAddress.swift in Sources */,
+				C48EFBFE2DF992DB00BB4910 /* MapViewRouter.swift in Sources */,
 				C48EFBF92DF989C900BB4910 /* LocationManager.swift in Sources */,
 				C48EFBFA2DF989C900BB4910 /* MapPageProtocols.swift in Sources */,
 				C48EFBFB2DF989C900BB4910 /* MapViewController.swift in Sources */,
@@ -220,6 +224,8 @@
 				DEVELOPMENT_TEAM = 4CX3G85ALP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = eyupMertCase/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Our app needs your location permission to perform accurately.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Our app needs your location permission to perform accurately.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -248,6 +254,8 @@
 				DEVELOPMENT_TEAM = 4CX3G85ALP;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = eyupMertCase/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Our app needs your location permission to perform accurately.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "Our app needs your location permission to perform accurately.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";

@@ -10,8 +10,12 @@ import CoreLocation.CLLocation
 
 final class MapViewModel: MapVMProtocol {
     
+    var locationManager: (any LocationManagerProtocol)
     weak var delegate: (any MapViewDelegate)?
-    private(set) var isTracking = false
+    
+    init(locationManager: LocationManagerProtocol) {
+        self.locationManager = locationManager
+    }
    
     func fetchAdress(_ coordinate: CLLocationCoordinate2D) {
         let location = CLLocation(latitude: coordinate.latitude,
@@ -28,20 +32,24 @@ final class MapViewModel: MapVMProtocol {
         }
     }
     
-    func toggleTracking() {
-        isTracking.toggle()
-        if isTracking {
-            delegate?.handleOutput(.trackingStarted)
-        } else {
-            delegate?.handleOutput(.trackingStopped)
-        }
+    func startTracking() {
+        locationManager.locationAuthorizationDidAsk()
     }
-
+    
     func resetRoute() {
         delegate?.handleOutput(.routeReset)
     }
+}
+
+
+extension MapViewModel: LocationManagerDelegate {
     
-    func centerMap() {
-        delegate?.handleOutput(.centerMap)
+    func startTracking(coordinate: CLLocationCoordinate2D) {
+        delegate?.handleOutput(.trackingStarted(coordinate))
     }
+    
+    func navigateToAppSettings() {
+        delegate?.handleOutput(.navigateToAppSettings)
+    }
+    
 }

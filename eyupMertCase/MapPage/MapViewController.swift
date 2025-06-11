@@ -12,7 +12,7 @@ class MapViewController: UIViewController {
     
     // MARK: - Variables
     private let mapView = MKMapView()
-    private let viewModel = MapViewModel()
+    var viewModel: MapVMProtocol!
     
     private let trackingButton: UIButton = {
         let button = UIButton(type: .system)
@@ -42,6 +42,22 @@ class MapViewController: UIViewController {
     }()
     
     // MARK: - Statements
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        NotificationCenter.default.removeObserver(UIApplication.willEnterForegroundNotification)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.delegate = self
@@ -88,21 +104,25 @@ class MapViewController: UIViewController {
     }
     
     @objc private func didTapTrackingButton() {
-        viewModel.toggleTracking()
+        viewModel.startTracking()
     }
     
     @objc private func didTapResetButton() {
-        viewModel.resetRoute()
+        
     }
     
     @objc private func didTapCenterMapButton() {
-        viewModel.centerMap()
+        mapView.userTrackingMode = .follow
+    }
+    
+    @objc func appWillEnterForeground() {
+        viewModel.startTracking()
     }
     
     
     private func drawRouteBetweenCoordinates() {
-        let sourceCoordinate = CLLocationCoordinate2D(latitude: 41.015137, longitude: 28.979530)
-        let destinationCoordinate = CLLocationCoordinate2D(latitude: 41.0082, longitude: 28.9784)
+        let sourceCoordinate = CLLocationCoordinate2D(latitude: 41.09826186843273, longitude: 28.984044094927143)
+        let destinationCoordinate = CLLocationCoordinate2D(latitude: 41.11040168728024, longitude: 29.02485892762797)
         
         let sourcePlacemark = MKPlacemark(coordinate: sourceCoordinate)
         let destinationPlacemark = MKPlacemark(coordinate: destinationCoordinate)
@@ -128,6 +148,63 @@ class MapViewController: UIViewController {
  
     
     // MARK: - MKMapViewDelegate
+  
+    func showAlert(on viewController: UIViewController) {
+        let alert = UIAlertController(title: "Attention",
+                                      message: "Our app needs your permission to work properly",
+                                      preferredStyle: .alert)
+        
+        let settingsAction = UIAlertAction(title: "Go to Settings", style: .default) { _ in
+            if let appSettings = URL(string: UIApplication.openSettingsURLString),
+               UIApplication.shared.canOpenURL(appSettings) {
+                UIApplication.shared.open(appSettings)
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        
+        alert.addAction(settingsAction)
+        alert.addAction(cancelAction)
+        
+        viewController.present(alert, animated: true, completion: nil)
+    }
+}
+
+extension MapViewController: MapViewDelegate {
+    func handleOutput(_ output: MapVMOutput) {
+        
+        switch output {
+        case .trackingStarted(let location):
+            mapView.showsUserLocation = true
+            
+            if let userLocation = mapView.userLocation.location {
+                let region = MKCoordinateRegion(center: userLocation.coordinate,
+                                                latitudinalMeters: 300,
+                                                longitudinalMeters: 300)
+                mapView.setRegion(region, animated: true)
+            }
+            
+        case .anyError(let string):
+            print("anyError \(string)")
+        case .selectedAddress(let _):
+            print("selectedAddress")
+        case .locationServicesDisabled:
+            print("locationServicesDisabled")
+        case .trackingStopped:
+            print("trackingStopped")
+        case .routeReset:
+            print("routeReset")
+        case .navigateToAppSettings:
+            showAlert(on: self)
+        }
+    }
+}
+
+extension MapViewController: MKMapViewDelegate {
+    
+    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+        mapView.userTrackingMode = .none
+    }
     
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let polyline = overlay as? MKPolyline {
@@ -138,13 +215,7 @@ class MapViewController: UIViewController {
         }
         return MKOverlayRenderer()
     }
-}
-
-extension MapViewController: MapViewDelegate {
-    func handleOutput(_ output: MapVMOutput) {
-        // TODO: Handle Outputs
-        print("Output: \(output)")
-    }
+    
 }
 
 

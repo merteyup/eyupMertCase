@@ -19,7 +19,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         
         let window = UIWindow(windowScene: windowScene)
-        let rootVC = MapViewController()
+        let rootVC = MapViewRouter.make()
         window.rootViewController = rootVC
         window.makeKeyAndVisible()
         self.window = window
