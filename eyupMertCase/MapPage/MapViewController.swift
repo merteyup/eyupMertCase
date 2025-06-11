@@ -19,6 +19,7 @@ final class MapViewController: UIViewController {
     private lazy var centerMapButton: UIButton = makeButton(title: nil, backgroundColor: .systemRed)
 
     // MARK: - Lifecycle
+
     override func viewDidLoad() {
         super.viewDidLoad()
         viewModel.delegate = self
@@ -27,9 +28,7 @@ final class MapViewController: UIViewController {
         setupMapView()
         setupButtons()
 
-        trackingButton.addTarget(self, action: #selector(didTapTrackingButton), for: .touchUpInside)
-        resetButton.addTarget(self, action: #selector(didTapResetButton), for: .touchUpInside)
-        centerMapButton.addTarget(self, action: #selector(didTapCenterMapButton), for: .touchUpInside)
+        addObservers()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -42,10 +41,18 @@ final class MapViewController: UIViewController {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: UIApplication.willEnterForegroundNotification,
+                                                  object: nil)
     }
 
     // MARK: - Setup
+    
+    private func addObservers() {
+        trackingButton.addTarget(self, action: #selector(didTapTrackingButton), for: .touchUpInside)
+        resetButton.addTarget(self, action: #selector(didTapResetButton), for: .touchUpInside)
+        centerMapButton.addTarget(self, action: #selector(didTapCenterMapButton), for: .touchUpInside)
+    }
+    
     private func setupMapView() {
         view.addSubview(mapView)
         mapView.translatesAutoresizingMaskIntoConstraints = false
