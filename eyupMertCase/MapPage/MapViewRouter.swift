@@ -6,14 +6,13 @@
 //
 
 enum MapViewRouter {
-    static func make() -> MapViewController {
-        let locationManager = LocationManager()
-        let viewModel = MapViewModel(locationManager: locationManager)
+    static func make(with viewModel: MapViewModel? = nil) -> MapViewController {
+        let locationManager = LocationManager.shared
+        let vm = viewModel ?? MapViewModel(locationManager: locationManager)
         let viewController = MapViewController()
-        viewController.viewModel = viewModel
-        viewModel.delegate = viewController
-        locationManager.delegate = viewModel
-        
+        viewController.viewModel = vm
+        vm.delegate = viewController
+        locationManager.delegate = vm
         return viewController
     }
 }

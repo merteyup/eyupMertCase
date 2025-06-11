@@ -13,6 +13,8 @@ protocol LocationManagerProtocol {
     func didLocationAuthAsked()
     func startLocationManager()
     func stopLocationManager()
+    func didEnterBackground()
+    func willEnterForeground()
 }
 
 protocol LocationManagerDelegate: AnyObject {
@@ -27,6 +29,7 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     private var lastLocation: CLLocationCoordinate2D?
     private var trackedLocations: [CLLocation] = []
     private var isTracking = false
+    static let shared = LocationManager()
     
     override init() {
         super.init()
@@ -38,6 +41,8 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         isTracking = true
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.startMonitoringSignificantLocationChanges()
+        locationManager.allowsBackgroundLocationUpdates = true
+        locationManager.pausesLocationUpdatesAutomatically = false
         locationManager.distanceFilter = 50
         locationManager.startUpdatingLocation()
         lastLocation = locationManager.location?.coordinate
@@ -63,6 +68,16 @@ final class LocationManager: NSObject, LocationManagerProtocol {
             break
         }
     }
+    
+    func didEnterBackground() {
+        locationManager.stopUpdatingLocation()
+        locationManager.startMonitoringSignificantLocationChanges()
+    }
+    
+    func willEnterForeground() {
+        locationManager.stopMonitoringSignificantLocationChanges()
+        locationManager.startUpdatingLocation()
+    }
 }
 
 extension LocationManager: CLLocationManagerDelegate {
@@ -70,6 +85,7 @@ extension LocationManager: CLLocationManagerDelegate {
         guard let last = locations.last,
               last.horizontalAccuracy < 20 else { return }
         trackedLocations.append(last)
+        
         let distance = totalTraveledDistance()
         print("Toplam kat edilen mesafe: \(Int(distance)) metre")
 
