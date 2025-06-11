@@ -10,9 +10,9 @@ import SwiftData
 enum MapViewRouter {
     static func make(context: ModelContext) -> MapViewController {
         let locationManager = LocationManager.shared
-        let visitStore = SwiftDataVisitStore(context: context)
+        let lastLocationsStore = LastLocationsStore(context: context)
         let viewModel = MapViewModel(locationManager: locationManager,
-                                     visitStore: visitStore)
+                                     lastLocationsStore: lastLocationsStore)
         let viewController = MapViewController()
         viewController.viewModel = viewModel
         viewModel.delegate = viewController

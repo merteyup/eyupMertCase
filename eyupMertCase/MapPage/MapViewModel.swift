@@ -13,13 +13,13 @@ final class MapViewModel: MapVMProtocol {
     
     var locationManager: (any LocationManagerProtocol)
     weak var delegate: (any MapViewDelegate)?
-    private let visitStore: VisitStoreProtocol
+    private let lastLocationsStore: LastLocationsStoreProtocol
     private var fetchedAddresses: Set<String> = []
     
     init(locationManager: LocationManagerProtocol,
-         visitStore: VisitStoreProtocol) {
+         lastLocationsStore: LastLocationsStoreProtocol) {
         self.locationManager = locationManager
-        self.visitStore = visitStore
+        self.lastLocationsStore = lastLocationsStore
     }
     
     func fetchAdress(_ coordinate: CLLocationCoordinate2D) {
@@ -68,16 +68,16 @@ final class MapViewModel: MapVMProtocol {
     }
 
     func saveLocation(_ coordinate: CLLocationCoordinate2D) {
-        visitStore.saveVisitPoint(latitude: coordinate.latitude,
+        lastLocationsStore.saveLastLocationVisit(latitude: coordinate.latitude,
                                   longitude: coordinate.longitude)
     }
     
     func loadStoredLocations() -> [VisitPoint] {
-        visitStore.fetchAllVisitPoints()
+        lastLocationsStore.loadStoredLocations()
     }
     
     func clearVisitPoints() {
-        visitStore.deleteAllVisitPoints()
+        lastLocationsStore.deleteVisitedLocations()
         delegate?.handleOutput(.routeReset)
     }
 }
