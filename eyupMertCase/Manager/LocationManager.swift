@@ -22,10 +22,10 @@ protocol LocationManagerDelegate: AnyObject {
 
 final class LocationManager: NSObject, LocationManagerProtocol {
     
-    private let locationManager = CLLocationManager()
-    var lastLocation: CLLocationCoordinate2D?
-    var trackedCoordinates: [CLLocationCoordinate2D] = []
     weak var delegate: LocationManagerDelegate?
+    private let locationManager = CLLocationManager()
+    private var lastLocation: CLLocationCoordinate2D?
+    private var trackedCoordinates: [CLLocationCoordinate2D] = []
     private var isTracking = false
     
     override init() {
@@ -40,6 +40,9 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         locationManager.startMonitoringSignificantLocationChanges()
         locationManager.distanceFilter = 5
         locationManager.startUpdatingLocation()
+        lastLocation = locationManager.location?.coordinate
+        guard let lastLocation else { return }
+        delegate?.startTracking(coordinate: lastLocation)
     }
     
     func stopLocationManager() {
@@ -48,16 +51,10 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         locationManager.stopUpdatingLocation()
     }
     
-    func didFocusUserLocation() {
-        guard let location = locationManager.location else { return }
-      //  delegate?.focusUserLocationDidUpdate(location: location)
-    }
-    
     func locationAuthorizationDidAsk() {
         switch locationManager.authorizationStatus {
         case .denied, .restricted:
             delegate?.navigateToAppSettings()
-            return
         case .notDetermined:
             locationManager.requestAlwaysAuthorization()
         case .authorizedAlways, .authorizedWhenInUse:
