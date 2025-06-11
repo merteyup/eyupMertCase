@@ -19,7 +19,7 @@ final class MapViewModel: MapVMProtocol {
     }
    
     func fetchAdress(_ coordinate: CLLocationCoordinate2D) {
-        let key = addressKey(for: coordinate)
+        let key = makeAddressKey(for: coordinate)
         guard shouldFetchAddress(for: key) else { return }
         
         reverseGeocode(coordinate: coordinate) { [weak self] result in
@@ -50,10 +50,9 @@ final class MapViewModel: MapVMProtocol {
         }
     }
     
-    private func addressKey(for coordinate: CLLocationCoordinate2D) -> String {
+    private func makeAddressKey(for coordinate: CLLocationCoordinate2D) -> String {
         "\(coordinate.latitude)-\(coordinate.longitude)"
     }
-    
     
     func startTracking() {
         locationManager.didLocationAuthAsked()

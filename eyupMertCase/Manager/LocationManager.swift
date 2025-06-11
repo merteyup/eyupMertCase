@@ -28,7 +28,7 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     private let locationManager = CLLocationManager()
     private var lastLocation: CLLocationCoordinate2D?
     private var trackedLocations: [CLLocation] = []
-    private var isTracking = false
+    var isTracking = false
     static let shared = LocationManager()
     
     override init() {
@@ -57,15 +57,19 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     }
     
     func didLocationAuthAsked() {
-        switch locationManager.authorizationStatus {
-        case .denied, .restricted:
-            delegate?.navigateToAppSettings()
-        case .notDetermined:
-            locationManager.requestAlwaysAuthorization()
-        case .authorizedAlways, .authorizedWhenInUse:
-            startLocationManager()
-        default:
-            break
+        if isTracking {
+            stopLocationManager()
+        } else {
+            switch locationManager.authorizationStatus {
+            case .denied, .restricted:
+                delegate?.navigateToAppSettings()
+            case .notDetermined:
+                locationManager.requestAlwaysAuthorization()
+            case .authorizedAlways, .authorizedWhenInUse:
+                startLocationManager()
+            default:
+                break
+            }
         }
     }
     
