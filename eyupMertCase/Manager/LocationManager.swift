@@ -51,7 +51,7 @@ final class LocationManager: NSObject, LocationManagerProtocol {
         locationManager.startMonitoringSignificantLocationChanges()
         locationManager.allowsBackgroundLocationUpdates = true
         locationManager.pausesLocationUpdatesAutomatically = false
-        locationManager.distanceFilter = 50
+        locationManager.distanceFilter = 5
         locationManager.startUpdatingLocation()
         lastLocation = locationManager.location?.coordinate
         guard let lastLocation else { return }
