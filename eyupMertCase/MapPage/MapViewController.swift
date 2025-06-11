@@ -161,39 +161,77 @@ extension MapViewController: MapViewDelegate {
     func handleOutput(_ output: MapVMOutput) {
         switch output {
         case .trackingStarted(let location):
-            currentLocation = location
-            
-            let annotation = CustomAnnotation(coordinate: location,
-                                              title: "Ziyaret Noktası")
-            mapView.addAnnotation(annotation)
-            
-            if shouldFollowUser {
-                updateRegion(location)
-            }
+            handleTrackingStarted(location)
             
         case .anyError(let message):
-            print("Error: \(message)")
+            handleError(message)
+            
         case .selectedAddress(let address, let coordinate):
-            if let annotation = mapView.annotations
-                .compactMap({ $0 as? CustomAnnotation })
-                .first(where: { $0.coordinate.latitude == coordinate.latitude && $0.coordinate.longitude == coordinate.longitude }) {
-                
-                annotation.title = address
-                mapView.removeAnnotation(annotation)
-                mapView.addAnnotation(annotation)
-                mapView.selectAnnotation(annotation, animated: true)
-            }
+            updateAnnotationTitle(address, at: coordinate)
+            
         case .locationServicesDisabled:
-            print("locationServicesDisabled")
+            handleLocationServicesDisabled()
+            
         case .trackingStopped:
-            print("trackingStopped")
+            handleTrackingStopped()
+            
         case .routeReset:
-            print("routeReset")
+            handleRouteReset()
+            
         case .navigateToAppSettings:
             showAlertToOpenSettings()
+            
+        case .trackingStatusChanged(let isTracking):
+            updateTrackingButtonAppearance(isTracking)
+        }
+    }
+    
+    func handleTrackingStarted(_ location: CLLocationCoordinate2D) {
+        currentLocation = location
+        
+        let annotation = CustomAnnotation(coordinate: location, title: "Ziyaret Noktası")
+        mapView.addAnnotation(annotation)
+        
+        if shouldFollowUser {
+            updateRegion(location)
+        }
+    }
+    
+    func handleError(_ message: String) {
+        print("Error: \(message)")
+    }
+    
+    func updateAnnotationTitle(_ title: String, at coordinate: CLLocationCoordinate2D) {
+        if let annotation = mapView.annotations
+            .compactMap({ $0 as? CustomAnnotation })
+            .first(where: { $0.coordinate.latitude == coordinate.latitude && $0.coordinate.longitude == coordinate.longitude }) {
+            
+            annotation.title = title
+            mapView.removeAnnotation(annotation)
+            mapView.addAnnotation(annotation)
+            mapView.selectAnnotation(annotation, animated: true)
+        }
+    }
+    
+    func handleLocationServicesDisabled() {
+        print("locationServicesDisabled")
+    }
+    
+    func handleTrackingStopped() {
+        print("trackingStopped")
+    }
+    
+    func handleRouteReset() {
+        print("routeReset")
+    }
+    
+    func updateTrackingButtonAppearance(_ isTracking: Bool) {
+        DispatchQueue.main.async {
+            self.trackingButton.backgroundColor = isTracking ? .green : .gray
         }
     }
 }
+
 
 // MARK: - MKMapViewDelegate
 extension MapViewController: MKMapViewDelegate {
