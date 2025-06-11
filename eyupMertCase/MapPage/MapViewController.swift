@@ -41,7 +41,7 @@ class MapViewController: UIViewController {
         return button
     }()
     
-    // MARK: - Statements
+    // MARK: - LifeCycle
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -202,20 +202,10 @@ extension MapViewController: MapViewDelegate {
 
 extension MapViewController: MKMapViewDelegate {
     
-    func mapView(_ mapView: MKMapView, regionDidChangeAnimated animated: Bool) {
+    func mapView(_ mapView: MKMapView,
+                 regionDidChangeAnimated animated: Bool) {
         mapView.userTrackingMode = .none
     }
-    
-    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
-        if let polyline = overlay as? MKPolyline {
-            let renderer = MKPolylineRenderer(polyline: polyline)
-            renderer.strokeColor = .systemBlue
-            renderer.lineWidth = 5
-            return renderer
-        }
-        return MKOverlayRenderer()
-    }
-    
 }
 
 
