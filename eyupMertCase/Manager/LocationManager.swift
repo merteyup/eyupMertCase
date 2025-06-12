@@ -69,9 +69,9 @@ final class LocationManager: NSObject, LocationManagerProtocol {
     
     func stopLocationManager() {
         guard isTracking else { return }
+        isTracking = false
         locationManager.stopUpdatingLocation()
         locationManager.stopMonitoringSignificantLocationChanges()
-        isTracking = false
     }
     
     func didLocationAuthAsked() {
@@ -121,7 +121,8 @@ extension LocationManager: CLLocationManagerDelegate {
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+    func locationManager(_ manager: CLLocationManager,
+                         didFailWithError error: any Error) {
         guard let error = error as? CLError else { return }
         let code = error.code
         switch code {
@@ -137,7 +138,8 @@ extension LocationManager: CLLocationManagerDelegate {
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         switch manager.authorizationStatus {
         case .authorizedWhenInUse, .authorizedAlways:
-            startLocationManager()
+            isTracking = true
+            break
         default:
             locationManager.requestAlwaysAuthorization()
         }

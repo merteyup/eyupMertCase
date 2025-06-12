@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C465F2742DFAC51E0046182B /* LocationWakeUpHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C465F2732DFAC51E0046182B /* LocationWakeUpHandler.swift */; };
 		C48EFBF22DF989C900BB4910 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C48EFBE22DF989C900BB4910 /* Assets.xcassets */; };
 		C48EFBF32DF989C900BB4910 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C48EFBE42DF989C900BB4910 /* LaunchScreen.storyboard */; };
 		C48EFBF52DF989C900BB4910 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C48EFBE12DF989C900BB4910 /* AppDelegate.swift */; };
@@ -25,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C465F2732DFAC51E0046182B /* LocationWakeUpHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationWakeUpHandler.swift; sourceTree = "<group>"; };
 		C48EFBE12DF989C900BB4910 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C48EFBE22DF989C900BB4910 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C48EFBE32DF989C900BB4910 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 		C48EFBEB2DF989C900BB4910 /* Manager */ = {
 			isa = PBXGroup;
 			children = (
+				C465F2732DFAC51E0046182B /* LocationWakeUpHandler.swift */,
 				C48EFC082DFA0AFA00BB4910 /* LastLocationsStore.swift */,
 				C48EFBEA2DF989C900BB4910 /* LocationManager.swift */,
 			);
@@ -209,6 +212,7 @@
 			files = (
 				C48EFC072DFA0AC800BB4910 /* VisitPoint.swift in Sources */,
 				C48EFBF52DF989C900BB4910 /* AppDelegate.swift in Sources */,
+				C465F2742DFAC51E0046182B /* LocationWakeUpHandler.swift in Sources */,
 				C48EFBF62DF989C900BB4910 /* SceneDelegate.swift in Sources */,
 				C48EFBF72DF989C900BB4910 /* CLLocation+AddressConverter.swift in Sources */,
 				C48EFBF82DF989C900BB4910 /* CLPlacemark+GetAddress.swift in Sources */,
