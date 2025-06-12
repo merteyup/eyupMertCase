@@ -123,16 +123,13 @@ extension LocationManager: CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager,
                          didFailWithError error: any Error) {
-        guard let error = error as? CLError else { return }
-        let code = error.code
-        switch code {
-        case .network:
-            print("Error Code: network")
-        case .locationUnknown:
-            print("Error Code: location unknown")
-        default:
-            print(error.localizedDescription)
+        guard let clError = error as? CLError else {
+            print("Non-CLError: \(error.localizedDescription)")
+            return
         }
+
+        let locationError = LocationError(from: clError)
+        print("Location Error: \(locationError.description)")
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
@@ -160,5 +157,42 @@ extension LocationManager: CLLocationManagerDelegate {
         }
         
         return totalDistance
+    }
+}
+
+
+enum LocationError: Error, CustomStringConvertible {
+    case network
+    case locationUnknown
+    case permissionDenied
+    case restricted
+    case other(Error)
+
+    init(from error: CLError) {
+        switch error.code {
+        case .network:
+            self = .network
+        case .locationUnknown:
+            self = .locationUnknown
+        case .denied:
+            self = .permissionDenied
+        default:
+            self = .other(error)
+        }
+    }
+
+    var description: String {
+        switch self {
+        case .network:
+            return "Network error while fetching location."
+        case .locationUnknown:
+            return "Unable to determine location."
+        case .permissionDenied:
+            return "Location permission denied."
+        case .restricted:
+            return "Location access is restricted."
+        case .other(let error):
+            return "Unexpected error: \(error.localizedDescription)"
+        }
     }
 }
