@@ -28,8 +28,6 @@ enum MapVMOutput{
     case trackingStarted(_ location: CLLocationCoordinate2D)
     case anyError(String)
     case selectedAddress(String, CLLocationCoordinate2D)
-    case locationServicesDisabled
-    case trackingStopped
     case routeReset
     case navigateToAppSettings
     case trackingStatusChanged(Bool)

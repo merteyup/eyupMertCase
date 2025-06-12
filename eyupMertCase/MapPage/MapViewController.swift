@@ -190,10 +190,6 @@ extension MapViewController: MapViewDelegate {
             handleError(message)
         case .selectedAddress(let address, let coordinate):
             updateAnnotationTitle(address, at: coordinate)
-        case .locationServicesDisabled:
-            handleLocationServicesDisabled()
-        case .trackingStopped:
-            handleTrackingStopped()
         case .routeReset:
             handleRouteReset()
         case .navigateToAppSettings:
@@ -231,16 +227,6 @@ extension MapViewController: MapViewDelegate {
             mapView.addAnnotation(annotation)
             mapView.selectAnnotation(annotation, animated: true)
         }
-    }
-    
-    func handleLocationServicesDisabled() {
-        // TODO: Remove this cases if not necessary
-        print("locationServicesDisabled")
-    }
-    
-    func handleTrackingStopped() {
-        // TODO: Remove this cases if not necessary
-        print("trackingStopped")
     }
     
     private func handleRouteReset() {
