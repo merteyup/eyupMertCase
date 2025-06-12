@@ -18,9 +18,10 @@ final class MapViewController: UIViewController {
     private var shouldFollowUser = true
     private var isFirstAppearance = true
     private var isProgrammaticRegionChange = false
-    
-    private lazy var trackingButton: UIButton = makeButton(title: Constants.startTrackingTitle, backgroundColor: .systemBlue)
-    private lazy var resetButton: UIButton = makeButton(title: Constants.resetButtonTitle, backgroundColor: .systemRed)
+    private lazy var trackingButton: UIButton = makeButton(title: Constants.startTrackingTitle,
+                                                           backgroundColor: .systemBlue)
+    private lazy var resetButton: UIButton = makeButton(title: Constants.resetButtonTitle,
+                                                        backgroundColor: .systemRed)
     private lazy var centerMapButton: UIButton = {
         let button = UIButton(type: .system)
         let image = UIImage(systemName: "location.fill")
@@ -95,7 +96,8 @@ final class MapViewController: UIViewController {
         ])
     }
     
-    private func makeButton(title: String?, backgroundColor: UIColor) -> UIButton {
+    private func makeButton(title: String?,
+                            backgroundColor: UIColor) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle(title, for: .normal)
         button.backgroundColor = backgroundColor
@@ -108,7 +110,8 @@ final class MapViewController: UIViewController {
     private func showStoredAnnotations() {
         let storedPoints = viewModel.loadStoredLocations()
         for point in storedPoints {
-            let coordinate = CLLocationCoordinate2D(latitude: point.latitude, longitude: point.longitude)
+            let coordinate = CLLocationCoordinate2D(latitude: point.latitude,
+                                                    longitude: point.longitude)
             let annotation = CustomAnnotation(coordinate: coordinate)
             mapView.addAnnotation(annotation)
         }
@@ -154,8 +157,12 @@ final class MapViewController: UIViewController {
     
     private func updateRegion(_ coordinate: CLLocationCoordinate2D) {
         isProgrammaticRegionChange = true
-        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 300, longitudinalMeters: 300)
-        mapView.setRegion(region, animated: true)
+        mapView.setCamera(MKMapCamera(lookingAtCenter: coordinate,
+                                      fromDistance: 3000,
+                                      pitch: 0,
+                                      heading: 0),
+                          animated: true)
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.isProgrammaticRegionChange = false
         }
@@ -167,14 +174,10 @@ final class MapViewController: UIViewController {
     }
     
     private func updateResetButton() {
-        let hasStoredPoints = !viewModel.loadStoredLocations().isEmpty
-        resetButton.isEnabled = hasStoredPoints
-        resetButton.backgroundColor = hasStoredPoints ? .systemRed : .systemGray
-    }
-    
-    private func updateCenterMapButton() {
+        let hasStoredPoints = !viewModel.loadStoredLocations().isEmpty || mapView.annotations.count != 0
         DispatchQueue.main.async {
-            self.centerMapButton.isHidden = false
+            self.resetButton.isEnabled = hasStoredPoints
+            self.resetButton.backgroundColor = hasStoredPoints ? .systemRed : .systemGray
         }
     }
 }
@@ -185,7 +188,7 @@ extension MapViewController: MapViewDelegate {
     func handleOutput(_ output: MapVMOutput) {
         switch output {
         case .trackingStarted(let location):
-            handleTrackingStarted(location)
+            handleTracking(location)
         case .anyError(let message):
             handleError(message)
         case .selectedAddress(let address, let coordinate):
@@ -195,21 +198,26 @@ extension MapViewController: MapViewDelegate {
         case .navigateToAppSettings:
             showAlertToOpenSettings()
         case .trackingStatusChanged(let isTracking):
-            updateTrackingButtonAppearance(isTracking)
-            if isTracking {
-                updateCenterMapButton()
-            }
+            handleButtonUI(for: isTracking)
         }
     }
     
-    func handleTrackingStarted(_ location: CLLocationCoordinate2D) {
+    func handleTracking(_ location: CLLocationCoordinate2D) {
         currentLocation = location
         let annotation = CustomAnnotation(coordinate: location)
         mapView.addAnnotation(annotation)
+
         updateResetButton()
-        
+
         if shouldFollowUser {
             updateRegion(location)
+        }
+    }
+    
+    private func handleButtonUI(for isTracking: Bool) {
+        DispatchQueue.main.async {
+            self.updateTrackingButton(isTracking: isTracking)
+            self.centerMapButton.isHidden = false
         }
     }
     
@@ -217,10 +225,12 @@ extension MapViewController: MapViewDelegate {
         print("Error: \(message)")
     }
     
-    func updateAnnotationTitle(_ title: String, at coordinate: CLLocationCoordinate2D) {
+    func updateAnnotationTitle(_ title: String,
+                               at coordinate: CLLocationCoordinate2D) {
         if let annotation = mapView.annotations
             .compactMap({ $0 as? CustomAnnotation })
-            .first(where: { $0.coordinate.latitude == coordinate.latitude && $0.coordinate.longitude == coordinate.longitude }) {
+            .first(where: { $0.coordinate.latitude == coordinate.latitude &&
+                $0.coordinate.longitude == coordinate.longitude }) {
             
             annotation.title = title
             mapView.removeAnnotation(annotation)
@@ -234,18 +244,13 @@ extension MapViewController: MapViewDelegate {
         mapView.removeAnnotations(annotationsToRemove)
         updateResetButton()
     }
-    
-    private func updateTrackingButtonAppearance(_ isTracking: Bool) {
-        DispatchQueue.main.async {
-            self.updateTrackingButton(isTracking: isTracking)
-        }
-    }
 }
 
 // MARK: - MKMapViewDelegate
 
 extension MapViewController: MKMapViewDelegate {
-    func mapView(_ mapView: MKMapView, regionWillChangeAnimated animated: Bool) {
+    func mapView(_ mapView: MKMapView,
+                 regionWillChangeAnimated animated: Bool) {
         if isFirstAppearance {
             isFirstAppearance = false
             return
